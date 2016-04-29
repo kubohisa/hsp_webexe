@@ -1,0 +1,50 @@
+/*
+	webexe.
+	make: Hisao Ookubo.
+*/
+	// 設定
+	#define END_DIALOG 1	// 0に設定するとESCを押した時にダイアログが出ない
+
+	// ファイルパス取得
+	para = dir_cmdline
+	para = strtrim(para, 0, ' ')
+	para = strtrim(para, 0, '"')
+	
+	if (para == "") {
+		para = dirinfo(0) +  "/web/index.html"
+	}
+	
+	exist para
+	if (strsize == -1) {
+		dialog "ファイルがありません"
+		end
+	}
+	
+	// 全画面表示
+	width ,,0,0
+	bgscr 0, ginfo(20), ginfo(21), , 0, 0
+	gsel 0
+	
+	// ie.
+	axobj IE, "Shell.Explorer.2", ginfo(12), ginfo(13)
+	IE->"Navigate" "file://" + para
+	
+	repeat : wait 10 : if ie("Busy") = 0 { break } : loop
+
+	// [ESC]?
+	repeat
+		getkey flag, 27
+    	if (flag == 1) {
+			if (END_DIALOG == 1) {
+				dialog "ゲームを終了しますか？", 3, "Quit?"
+				if stat == 6 : break
+			} else {
+				break
+			}
+		}		
+    	await 10
+	loop
+	
+	// ie ending...
+	ie->"Quit"
+	end
